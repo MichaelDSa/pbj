@@ -37,7 +37,7 @@ def category_is_valid(value: str) -> bool:
         bool: 
         True if `category` meets requirements.
     """
-    conditions: Tuple[bool, bool, bool] = (
+    conditions: Tuple[bool, ...] = (
         not value.isdecimal(), # is not a number
         value.isalpha(), # consists of alphabet characters only
         '.' not in value, # no dots in value
@@ -128,7 +128,7 @@ def key_is_valid(key: str) -> bool:
     """
     # conditions:
     values: Tuple[bool, ...] = (
-        key.isdecimal(),
+        not key.isdecimal(),
         not key.startswith("."),
         not key.endswith("."),
         key.replace(".", "").isalnum()
@@ -292,10 +292,10 @@ def save_to_category(category: str, key: str, path: str = os.getcwd()) -> None:
         key (str): key* of `Dict[str,Dict[str*, str]]`
         path (str, optional): value* of`Dict[str, Dict[str, str*]]`Defaults to`os.getcwd().`
     """
-    path = os.path.expanduser(path)
+    path = os.path.expanduser(os.path.abspath(path))
     bookmarks: Dict[str, Dict[str, str]] = load()
 
-    if not (category_is_valid(category) or key_is_valid(key)):
+    if not (category_is_valid(category) and key_is_valid(key)):
         # early return
         print(f"either {category} or {key} is invalid. Try again.")
         print("Category names may:")
@@ -309,25 +309,24 @@ def save_to_category(category: str, key: str, path: str = os.getcwd()) -> None:
         print("    - not have leading or trailing dots.")
         print("    - not consist solely of numbers")
         return
+    elif not value_is_valid(path):
+        print("invalid value")
+        return
+    elif category in bookmarks: 
+        if value_found_in_dict(bookmarks[category], path):
+            print(f"This path already saved in {category}:")
+            return
+        
+    # save key-value to category in local bookmarks dict
+    bookmarks[category] = {}
+    bookmarks[category][key] = path
     
-    #if category in bookmarks:
-        # verify that path exists, that it is a directory, and is not a value in the category:
-    if value_is_valid(path) and not value_found_in_dict(bookmarks[category], path):
-        # save category, key and value to bookmarks:
-        bookmarks[category][key] = path
-        # save key value to CONFIG_FILE
-        if save_to_config(bookmarks):
-            print(f"'{path}' saved to '{key}' in category: '{category}'")
-        else:
-            print("`save_to_config()` failed in `save_to_category()`")
+    # save bookmarks to file:
+    if save_to_config(bookmarks):
+        print(f"saved to '{key}' in category: '{category}':")
+        print(f"'{path}'")
     else:
-        print(f"Failed. Key invalid or path already saved")
-        print(f"category: {category}")
-        print(f"key:      {key}")
-        print(f"value:    {path}")
-            
-    # else: 
-    #     print(f"{category} not found")
+        print("`save_to_config()` failed in `save_to_category()`")
 
 def save_to_config(bookmarks: Dict[str, Dict[str, str]]) -> bool:
     """
@@ -422,19 +421,38 @@ if __name__ == "__main__":
     if num_args > 1 and is_dash_s or is_dash_c: ##### WORKING...
         # if 3 args: ex: ./pbj -s [alphanum (key)]
         if num_args == 3 and is_dash_s: #### WORKING...done
-            key = sys.argv[2]
-            save_to_category(default_category, key)
-            #print(f"cmd: './pbj {sys.argv[1]} {sys.argv[2]}'") # save to default cat
-        # elif 4 args: ex: ./pbj -s [category] [key]
-        elif num_args == 4:
-            # if sys.argv[1] == "-c"...
-                # if not create_new_category(sys.argv[1]) #returns bool
-                    # print statemnt
-                    # exit
-            print(f"cmd: './pbj -s {sys.argv[2]} {sys.argv[3]}'")
+            key: str = sys.argv[2]
+            reassign_key: bool = False
+            if key in bookmarks[default_category]:
+                print(f"key ({key}) already assigned to '{bookmarks[default_category][key]}'.")
+                answer: str = input(f"reassign key ({key})? y/N: ")
+                reassign_key = True if answer.lower() == "y" else False
+            if reassign_key or key not in bookmarks[default_category]:
+                save_to_category(default_category, key)
+        # elif 4 args: ex: ./pbj -s [category] [key] #### WORKING...
+        elif num_args == 4 and is_dash_c:
+            category: str = sys.argv[2]
+            key: str = sys.argv[3]
+            reassign_key: bool = False
+            if category in bookmarks:
+                if key in bookmarks[category]:
+                    print(f"key ({key}) already assigned to '{bookmarks[category][key]}'")
+                    answer: str = input(f"reassign key ({key})? y/N: ")
+                    reassign_key = True if answer.lower() == "y" else False
+                    if reassign_key:
+                        save_to_category(category, key)
+                    else:
+                        print("path not saved")
+                        sys.exit(0)
+                else:
+                    save_to_category(category, key)
+            else:
+                save_to_category(category, key)
+            
+
     elif num_args > 1 and is_test:
         value: str = "/home/michael/projects/Python/scripts/pbj"
-        istrue = value_found_in_bookmarks(value);
+        istrue = value_found_in_dict(bookmarks["nothing"], value);
         print(istrue)
 
     # if arg[1] is -r: (remove path)
