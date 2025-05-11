@@ -3,7 +3,7 @@ pbj.py is a bookmarking script for your directories.
 directories are saved to keys in json format in the config
 file like so:
 {
-   "category1:" {
+   "category1": {
       "key1": "path/to/value1",
       "key2": "path/to/value2"
    },
