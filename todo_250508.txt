@@ -29,5 +29,14 @@ TODO:
         is assigned to any key of the specified category. The function can be
         called value_in_category(category: str, value: str)
         --> This was already done as `value_found_in_dict(category, value)`
-    [ ] change config to file
-    [ ] remove all ocurrances of specified path from file
+    [x] change config to file
+    [~] change functions that use to load() function to accept bookmarks
+        parameter.
+         [x] value_found_in_bookmarks()
+    [x] function to delete keypair from category
+    [x] function to delete category from bookmarks
+    [ ] function to list keys in specified category displaying a numbered list
+    [ ] function to delete all ocurrances of specified path from file
+        - This will be invoked by the option, 'rp'
+    [ ] decide whether to keep `load_json_file()`
+        - Maybe. first

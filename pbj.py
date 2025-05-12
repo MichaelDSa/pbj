@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+from tkinter import W
 from typing import Dict, List, OrderedDict, Tuple, Dict
 import os # OS routines for NT or Posix depending on what system we're on.
 import sys
@@ -44,7 +45,6 @@ def change_directory(bookmarks: Dict[str, str]) -> None:
     return
 
 def configure_configs(alter: bool = False) -> None:
-    # bookmarks: Dict[str, Dict[str, str]] = load()
     default_cat: str = "Default" 
     candidate: str = "exit"
 
@@ -97,6 +97,22 @@ def configure_configs(alter: bool = False) -> None:
                 json.dump(first_bookmark, f, indent=4)
         except FileNotFoundError as e:
             print(f"FileNotFoundError in config_configs(). ({BOOKMARKS_FILE})")
+
+def delete_category(bookmarks: Dict[str, Dict[str, str]], category: str) -> bool:
+    if category in bookmarks:
+        del bookmarks[category]
+        save_to_bookmarks_file(bookmarks)
+        return True
+    else:
+        return False
+
+def delete_key(bookmarks: Dict[str, Dict[str, str]], category: str, key: str) -> bool:
+    if category in bookmarks and key in bookmarks[category]:
+        del bookmarks[category][key]
+        save_to_bookmarks_file(bookmarks)
+        return True
+    else:
+        return False
 
 def get_config_value(key: str ="default_category") -> str:
     value = ""
@@ -265,7 +281,7 @@ def remove_duplicate_values(reference: Dict[str,str]) -> Dict[str,str]:
     
     return duplicates
     
-def save_to_category(category: str, key: str, path: str = os.getcwd()) -> None:
+def save_to_category(bookmarks: Dict[str, Dict[str, str]], category: str, key: str, path: str = os.getcwd()) -> None:
     """
     Assigns a`path`value to`key`in
     specified`category`. This`Dict[str,
@@ -287,7 +303,6 @@ def save_to_category(category: str, key: str, path: str = os.getcwd()) -> None:
         path (str, optional): value* of`Dict[str, Dict[str, str*]]`Defaults to`os.getcwd().`
     """
     path = os.path.expanduser(os.path.abspath(path))
-    bookmarks: Dict[str, Dict[str, str]] = load()
 
     if not (category_is_valid(category) and key_is_valid(key)):
         # early return
@@ -312,10 +327,13 @@ def save_to_category(category: str, key: str, path: str = os.getcwd()) -> None:
             return
         
     # save key-value to category in local bookmarks dict
-    if category in bookmarks:
-        bookmarks[category][key] = path
-    else:
-        bookmarks[category] = {key: path}
+    bookmarks.setdefault(category, {})[key] = path
+        ######################
+        # this is the same as:
+        # if category in bookmarks:
+        #     bookmarks[category][key] = path
+        # else:
+        #     bookmarks[category] = {key: path}
     
     # save bookmarks to file:
     if save_to_bookmarks_file(bookmarks):
@@ -358,8 +376,7 @@ def sort_bookmarks(bookmarks: Dict[str, Dict[str, str]]) -> Dict[str, Dict[str, 
     return sorted_dict
         
     
-def value_found_in_bookmarks(value: str) -> bool:
-    bookmarks: dict[str, Dict[str, str]] = load()
+def value_found_in_bookmarks(bookmarks: Dict[str, Dict[str, str]], value: str) -> bool:
     return any(value in inner_dict.values() for inner_dict in bookmarks.values())
 
 def value_found_in_dict(reference: Dict[str,str], value: str) -> bool:
@@ -404,12 +421,14 @@ if __name__ == "__main__":
     is_dash_s: bool = False
     is_dash_c: bool = False
     is_dash_r: bool = False
+    is_dash_rc: bool = False
     is_test: bool = False
     if len(sys.argv) >= 2:
         arg: str = sys.argv[1]
         is_dash_s = arg == "-s"
         is_dash_c = arg == "-c"
         is_dash_r = arg == "-r"
+        is_dash_rc = arg == "-rc"
         is_test = arg == "-test"
         
     
@@ -424,7 +443,7 @@ if __name__ == "__main__":
                 answer: str = input(f"reassign key ({key})? y/N: ")
                 reassign_key = True if answer.lower() == "y" else False
             if reassign_key or key not in bookmarks[default_category]:
-                save_to_category(default_category, key)
+                save_to_category(bookmarks, default_category, key)
         # elif 4 args: ex: ./pbj -s [category] [key] #### WORKING...done
         elif num_args == 4: 
             category: str = sys.argv[2]
@@ -436,35 +455,77 @@ if __name__ == "__main__":
                     answer: str = input(f"reassign key ({key})? y/N: ")
                     reassign_key = True if answer.lower() == "y" else False
                     if reassign_key:
-                        save_to_category(category, key)
+                        save_to_category(bookmarks, category, key)
                     else:
                         print("path not saved")
                         sys.exit(0)
                 else:
-                    save_to_category(category, key)
+                    save_to_category(bookmarks, category, key)
             else:
                 if is_dash_c:
-                    save_to_category(category, key)
+                    save_to_category(bookmarks, category, key)
+                else:
+                    print("Use `-c` to create new categories")
+
+    #####TEST BRANCH#####
     elif num_args > 1 and is_test:
         value: str = "/home/michael/projects/Python/scripts/pbj"
-        istrue = value_found_in_dict(bookmarks["nothing"], value)
+        arg2 = "nothing" 
+        if len(sys.argv) > 2:
+            arg2 = sys.argv[2] 
+        istrue: bool = False
+        try: 
+            istrue = value_found_in_dict(bookmarks[arg2], value)
+        except Exception as e:
+            print(f"Exception: {type(e).__name__}")
+            print(e)
         print(istrue)
+
     # if arg[1] is -r: (remove path) WORKING...
-    elif num_args > 1 and sys.argv[1] == "-r":
-        # if 3 args: ex ./pbj -r [alphanum key | value]
+    elif num_args > 1 and is_dash_r:
+        # if 3 args: ex ./pbj -r [alphanum key]
         if num_args == 3:
-            # if key: remove key-val from current category
-            if bookmarks[default_category][sys.argv[2]]:
-                print("cmd: './pbj -r {sys.argv[2]}'")
-            # elif check if value exists; remove value
-            else: # should be elif (new function:) value_found_in_all([value])
-                print("cmd: './pbj -r {sysargv[2]}'")
+            # remove keypair from default_category
+            key: str = sys.argv[2]
+            path: str = ""
+            if key in bookmarks[default_category]:
+                path = bookmarks[default_category][key]
+            if delete_key(bookmarks, default_category, key):
+                print(f"keypair deleted from '{default_category}':")
+                print(f"{key}: {path}")
+            else:
+                print("key does not exist.")
+        
         # elif 4 args: ex ./pbj -r [category-key] [nested-key]:
         elif num_args == 4:
-            # if bookmarks[category], remove [category-key] [nested-key]
-            if bookmarks[default_category][sys.argv[3]]:
-                print("cmd: './pbj -r {sys.argv[2]} {sys.argv[3]}'")
-                print("removing bookmarks[current_category]{sys.argv[3]]}")
+            # remove keypair from specified category
+            category: str = sys.argv[2]
+            key: str = sys.argv[3]
+            path: str = ""
+            if category in bookmarks and key in bookmarks[category]:
+                path = bookmarks[category][key]
+            if delete_key(bookmarks, category, key):
+                print(f"keypair deleted from '{category}':")
+                print(f"{key}: {path}")
+            else:
+                print("key or category does not exist")
+    # ./pbj -rc [category]
+    elif num_args > 1 and is_dash_rc:
+        category: str = sys.argv[2]
+        accept: bool = False
+        # confirm with user if category exists
+        if category in bookmarks:
+            print(f"Category deletion: '{category}'")
+            answer: str = input(f"Are you sure? y/N: ")
+            accept = True if answer.lower() == "y" else False
+        else:
+            print("category not found")
+            sys.exit(0)
+        # remove category from bookmarks:
+        if accept and delete_category(bookmarks, category):
+            print(f"'{category}' category was deleted.")
+        else:
+            print("deletion aborted/unsuccessful")
 
     # if no args:
     elif num_args == 1:
