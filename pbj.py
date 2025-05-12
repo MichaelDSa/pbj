@@ -12,6 +12,32 @@ configuration_file = "~/.config/pbj/config.json"
 BOOKMARKS_FILE = os.path.expanduser(bookmarks_file)
 CONFIG_FILE = os.path.expanduser(configuration_file)
 
+def change_directory(bookmarks: Dict[str, Dict[str, str]], category: str, keynum: str) -> None:
+    num: int = -1 if not keynum.isdecimal() else int(keynum)
+    target_path = ""
+
+    print(isinstance(num, int))
+    if category in bookmarks:
+        keys: list = list(bookmarks[category])
+        # print(keys[num - 1])
+        # print(bookmarks[category][keys[num - 1]])
+        # print(bookmarks[category][keynum])
+        if 0 < num <= len(keys):
+            target_path = bookmarks[category][keys[num - 1]]
+        else:
+            target_path = bookmarks[category][keynum]
+        
+    print(f"before try: {os.getcwd()}")  
+    try:
+        print(f"target path: {target_path}")
+        os.chdir(target_path)
+    except OSError as e:
+        print(f"OSError: in `change_directory()`:")
+        print(f"{type(e).__name__}")
+        print(f"{e}")
+    print(f"current: {os.getcwd()}")    
+    return
+
 def category_is_valid(value: str) -> bool:
     """
     Returns True if `category` meets the criteria for
@@ -41,8 +67,6 @@ def category_is_valid(value: str) -> bool:
     return False not in conditions
     
 
-def change_directory(bookmarks: Dict[str, str]) -> None:
-    return
 
 def configure_configs(alter: bool = False) -> None:
     default_cat: str = "Default" 
@@ -146,11 +170,7 @@ def key_is_valid(key: str) -> bool:
     
     return False not in values
     
-def list(bookmarks: Dict[str, Dict[str, str]], category: str = get_config_value("default_category")) -> Dict[str,str]:
-    return
-    
-    
-def list(bookmarks: Dict[str, str]) -> Tuple[List[str], Dict[str, str]]:
+def ls(bookmarks: Dict[str, str]) -> Tuple[List[str], Dict[str, str]]:
     keys = []
     if bookmarks:
         keys = list(bookmarks.keys())
@@ -166,6 +186,15 @@ def list(bookmarks: Dict[str, str]) -> Tuple[List[str], Dict[str, str]]:
     # Also, what client is going to
     # use the list() return value?
     return keys, bookmarks
+
+def ls_category(bookmarks: Dict[str, Dict[str, str]], category: str) -> None:
+    if category in bookmarks:
+        keys = list(bookmarks[category])
+        print(f"paths found in `{category}':")
+        for i, key in enumerate(keys):
+            print(f"   {i+1}) {key}: {bookmarks[category][key]}")
+    else:
+        return
 
 def load() -> Dict[str, Dict[str, str]]: 
     """returns a dict representing the keys and values of the BOOKMARKS_FILE .json file
@@ -469,18 +498,18 @@ if __name__ == "__main__":
 
     #####TEST BRANCH#####
     elif num_args > 1 and is_test:
-        value: str = "/home/michael/projects/Python/scripts/pbj"
-        arg2 = "nothing" 
-        if len(sys.argv) > 2:
-            arg2 = sys.argv[2] 
-        istrue: bool = False
-        try: 
-            istrue = value_found_in_dict(bookmarks[arg2], value)
-        except Exception as e:
-            print(f"Exception: {type(e).__name__}")
-            print(e)
-        print(istrue)
+        val = list(bookmarks)
+        print(val)
+        print(type(val))
+        for i, v in enumerate(val):
+            print(f"{i+1}: {v}")
+        print(val[1])
 
+        num = "10"
+        print(f"num is decimal: {num.isdecimal()}")
+        print(f"\nerror free cast num to int:")
+        number = int(num)
+        print(f"number: {number}")
     # if arg[1] is -r: (remove path) WORKING...
     elif num_args > 1 and is_dash_r:
         # if 3 args: ex ./pbj -r [alphanum key]
@@ -529,24 +558,20 @@ if __name__ == "__main__":
 
     # if no args:
     elif num_args == 1:
-        print("cmd: no args.")# new function: `ls_current_category(bookmarks[current_category])`
+        ls_category(bookmarks, default_category)
     # elif 1 args: ex: ./pbj
-    elif num_args == 2: 
-        arg1 = sys.argv[1]
+    elif num_args == 2: #change directory default_category: ./pbj [key | num]
+        keynum: str = sys.argv[1]
         # change directory to the key of arg[1]
-        print(f"cmd: './pbj {arg1}'") #change_directory(bookmarks[DEFAULT_CATEGORY], arg1)
+        change_directory(bookmarks, default_category, keynum)
+        print(os.getcwd())
     # elif 3 args: ex ./pbj [category] [alphanum | number]
     elif num_args == 3:
-        arg1 = sys.argv[1]
-        arg2 = sys.argv[2]
+        category = sys.argv[1]
+        keynum = sys.argv[2]
         # if arg1 is a category:
-        if arg1 in bookmarks:
-            if arg2 in bookmarks[arg1]:
-                #change_directory(bookmarks[arg1], arg2)
-                print("cmd: './pbj {arg1} {arg2}")
-            else:
-                print(f"{arg2} not found in {arg1}")
-        else:
-            print(f"{arg1} not found")
-                
+        if category in bookmarks:
+            change_directory(bookmarks, category, keynum)
+    
+    os.system("/bin/bash")
                 

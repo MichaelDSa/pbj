@@ -4,7 +4,7 @@ import os
 import sys
 import re  # For checking invalid characters in keys
 
-CONFIG_FILE = "directory_bookmarks.json"
+CONFIG_FILE = "/home/michael/projects/Python/scripts/pbj/directory_bookmarks.json"
 
 def load_bookmarks():
     """Loads bookmarks from the config file. Returns an empty dict if the file doesn't exist."""
