@@ -1,14 +1,8 @@
 #!/usr/bin/env python3
-from configparser import DuplicateSectionError
-# from curses.ascii import isalnum
 import json
-# import typing
-from tkinter import W
 from typing import Dict, List, OrderedDict, Tuple, Dict
 import os # OS routines for NT or Posix depending on what system we're on.
 import sys
-
-from pj import CONFIG_FILE # Built-in functions, types, exceptions, and other objects.
 # import re # Support for regular expressions (RE).
 
 
@@ -158,7 +152,7 @@ def list(bookmarks: Dict[str, str]) -> Tuple[List[str], Dict[str, str]]:
     return keys, bookmarks
 
 def load() -> Dict[str, Dict[str, str]]: 
-    """returns a dict representing the keys and values of the CONFIG_FILE .json file
+    """returns a dict representing the keys and values of the BOOKMARKS_FILE .json file
 
     Returns:
         Dict[str, str]: keys are the bookmarks. values are the paths
@@ -179,12 +173,12 @@ def load() -> Dict[str, Dict[str, str]]:
 
 def load_json_file(file: str) -> Dict[str, str]:
     """
-    Save contents of a .json file to CONFIG_FILE if keys and values are valid.
+    Save contents of a .json file to BOOKMARKS_FILE if keys and values are valid.
     - keys must be alphanumeric but may contain one or more dots. Leading and trailing dots will be stripped.
-    - keys that already exist in CONFIG_FILE will be ignored. The original value will not be replaced.
+    - keys that already exist in BOOKMARKS_FILE will be ignored. The original value will not be replaced.
     - values must be paths to directories. Each path must exist.
-    - values that already exist in CONFIG_FILE will be ignored. Key's values will not be updated.
-    - valid json key-vals will be saved to CONFIG_FILE. 
+    - values that already exist in BOOKMARKS_FILE will be ignored. Key's values will not be updated.
+    - valid json key-vals will be saved to BOOKMARKS_FILE. 
     - invalid json key-vals will be ignored.
 
     Args:
@@ -276,14 +270,14 @@ def save_to_category(category: str, key: str, path: str = os.getcwd()) -> None:
     Assigns a`path`value to`key`in
     specified`category`. This`Dict[str,
     Dict[str, str]]`is subsequently saved
-    to`CONFIG_FILE`via`save_to_config()`.
+    to`BOOKMARKS_FILE`via`save_to_bookmarks_file()`.
     - `path`is the value to save
     - `key` is the key of the `path` value.
     - `category` is the key of the value made up
     of`key-path.`
     - the whole`category-key-path`structure is saved to
     a`Dict[str, Dict[str, str]]`, which is subsequently
-    saved to`CONFIG_FILE`in`json`format.
+    saved to`BOOKMARKS_FILE`in`json`format.
     - if no value given,`path`defaults
     to`os.getcwd()`(current working directory)
 
@@ -318,21 +312,23 @@ def save_to_category(category: str, key: str, path: str = os.getcwd()) -> None:
             return
         
     # save key-value to category in local bookmarks dict
-    bookmarks[category] = {}
-    bookmarks[category][key] = path
+    if category in bookmarks:
+        bookmarks[category][key] = path
+    else:
+        bookmarks[category] = {key: path}
     
     # save bookmarks to file:
-    if save_to_config(bookmarks):
+    if save_to_bookmarks_file(bookmarks):
         print(f"saved to '{key}' in category: '{category}':")
         print(f"'{path}'")
     else:
-        print("`save_to_config()` failed in `save_to_category()`")
+        print("`save_to_bookmarks_file()` failed in `save_to_category()`")
 
-def save_to_config(bookmarks: Dict[str, Dict[str, str]]) -> bool:
+def save_to_bookmarks_file(bookmarks: Dict[str, Dict[str, str]]) -> bool:
     """
-    Save all paths to config file. This includes all
+    Save all paths to BOOKMARKS_FILE. This includes all
     new key-path items. All old key-path values in all
-    categories are rewritten to the config file.
+    categories are rewritten to the file.
 
     Args:
         bookmarks (dict[str, str]): 
@@ -350,7 +346,7 @@ def save_to_config(bookmarks: Dict[str, Dict[str, str]]) -> bool:
             json.dump(bookmarks, f, indent=4)
     except Exception as e:
         # Prints error message, and {type(e)..} name/type of exception and {e} error
-        print(f"Error saving to CONFIG_FILE in save_to_copy(). ({type(e).__name__}): {e}")
+        print(f"Error saving to BOOKMARKS_FILE in save_to_bookmarks_file(). ({type(e).__name__}): {e}")
         return False
     return True
     
@@ -429,8 +425,8 @@ if __name__ == "__main__":
                 reassign_key = True if answer.lower() == "y" else False
             if reassign_key or key not in bookmarks[default_category]:
                 save_to_category(default_category, key)
-        # elif 4 args: ex: ./pbj -s [category] [key] #### WORKING...
-        elif num_args == 4 and is_dash_c:
+        # elif 4 args: ex: ./pbj -s [category] [key] #### WORKING...done
+        elif num_args == 4: 
             category: str = sys.argv[2]
             key: str = sys.argv[3]
             reassign_key: bool = False
@@ -447,15 +443,13 @@ if __name__ == "__main__":
                 else:
                     save_to_category(category, key)
             else:
-                save_to_category(category, key)
-            
-
+                if is_dash_c:
+                    save_to_category(category, key)
     elif num_args > 1 and is_test:
         value: str = "/home/michael/projects/Python/scripts/pbj"
-        istrue = value_found_in_dict(bookmarks["nothing"], value);
+        istrue = value_found_in_dict(bookmarks["nothing"], value)
         print(istrue)
-
-    # if arg[1] is -r: (remove path)
+    # if arg[1] is -r: (remove path) WORKING...
     elif num_args > 1 and sys.argv[1] == "-r":
         # if 3 args: ex ./pbj -r [alphanum key | value]
         if num_args == 3:

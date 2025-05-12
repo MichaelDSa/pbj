@@ -25,6 +25,9 @@ TODO:
     [x] make configuration function that creates a config file if it doesn't
         exist. Just make sure the confiig file exists.
     [x] make configuration function that creates initial bookmarks file.
-    [~] for line 314 if statement, make a function that checks if a path value
+    [x] for line 314 if statement, make a function that checks if a path value
         is assigned to any key of the specified category. The function can be
         called value_in_category(category: str, value: str)
+        --> This was already done as `value_found_in_dict(category, value)`
+    [ ] change config to file
+    [ ] remove all ocurrances of specified path from file
