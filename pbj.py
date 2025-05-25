@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
+import pbj_help
 import json
 import textwrap
 from typing import Dict, OrderedDict, Tuple, Dict
 import os # OS routines for NT or Posix depending on what system we're on.
 import sys
 
-# You can change bookmarks_file value via config.json
+# You can change bookmarks_file valuevia config.json
 # you can change configuration_file value here,
 # but first manually create parent dirs.
 bookmarks_file = "~/.config/pbj/bookmarks.json"
@@ -232,7 +233,8 @@ def change_key_name(bookmarks: Dict[str, Dict[str, str]], category: str, key_to_
     save_to_bookmarks_file(bookmarks)
 
 def delete_category(bookmarks: Dict[str, Dict[str, str]], category: str) -> bool:
-    if category in bookmarks:
+    default_category: str = get_config_value()
+    if category in bookmarks and category != default_category:
         del bookmarks[category]
         save_to_bookmarks_file(bookmarks)
         return True
@@ -826,6 +828,7 @@ if __name__ == "__main__":
 
     # booleans indicating presence/absence of short and long options:
     no_dash: bool = True
+    opt_h: bool = False
     opt_a: bool = False
     opt_s: bool = False
     opt_c: bool = False
@@ -837,6 +840,7 @@ if __name__ == "__main__":
     if len(sys.argv) >= 2:
         arg: str = sys.argv[1]
         no_dash = not arg.startswith('-')
+        opt_h = arg == "-h" or arg == "--help"
         opt_a = arg == "-a"   # list all categories and keys
         opt_s = arg == "-s"   # save [category and] key
         opt_c = arg == "-c"   # create/change [category] [key]
@@ -853,10 +857,40 @@ if __name__ == "__main__":
         # - SEE SCRIPT: 'pbj-liason'
         width = sys.argv[2]
         set_terminal_width(width)
+    # help options
+    elif num_args > 1 and opt_h:
+        if num_args == 2:
+            pbj_help.help_name()
+            pbj_help.help_synopsis()
+        elif num_args > 2:
+            help_option: str = sys.argv[2].lower()
+            if help_option == "all":
+                pbj_help.help()
+            elif help_option == "synopsis":
+                pbj_help.help_synopsis()
+            elif help_option == "description":
+                pbj_help.help_description()
+            elif help_option == "options":
+                pbj_help.help_options()
+            elif help_option == "files":
+                pbj_help.help_files()
+            elif help_option == "standards":
+                pbj_help.help_standards()
+            elif help_option == "examples":
+                pbj_help.help_examples()
+            elif help_option == "tldr":
+                pbj_help.help_examples(True)
+            elif help_option == "help":
+                pbj_help.help_example_help_options()
+            elif help_option == "author":
+                pbj_help.help_authors()
+            elif help_option == "license":
+                pbj_help.help_license()
+    # list all bookmarks:
     elif num_args > 1 and opt_a:
         ls_all(bookmarks)
     # if 2 args and arg[1] is -c. ex: `./pbj -c`
-    elif num_args == 2 and opt_c: ###### WORK ON NEXT...
+    elif num_args == 2 and opt_c: 
         change_keyname_dialogue(bookmarks, default_category)
     # if arg[1] is -s|-c: (save bookmark | change value or create category)
     elif num_args > 2 and opt_s or opt_c: 
@@ -900,12 +934,9 @@ if __name__ == "__main__":
 
     #####TEST BRANCH#####
     elif num_args > 1 and is_test:
-        # mess with client
-        print("Test Authentication. checking testing credentials... ")
-        foo: str = input("enter xyz secret key: ")
-        if foo == "xyz":
-            print("Let's go!")
+        print("Baby, my heart's on fire.")
 
+    # change default category
     elif num_args > 1 and opt_cd:
         if num_args == 2:
             change_default_category(bookmarks)
@@ -956,6 +987,7 @@ if __name__ == "__main__":
             print(f"'{category}' category was deleted.")
         elif found:
             print("deletion aborted/unsuccessful")
+            print("note: current category cannot be deleted.")
 
     elif no_dash:
         # if no args:
