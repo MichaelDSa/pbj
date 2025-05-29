@@ -10,7 +10,7 @@ indent2: str = f"{indent1 * 2}"
 indent3: str = f"{indent1 * 3}"
 wrapper1: textwrap = textwrap.TextWrapper(width, indent1, indent1, replace_whitespace=False)
 wrapper2: textwrap = textwrap.TextWrapper(width, indent2, indent2, replace_whitespace=False)
-
+wrapper3: textwrap = textwrap.TextWrapper(width,indent2, indent2, replace_whitespace=False, drop_whitespace=False)
 # content arrays:
 name: Dict[str, str] = {
     "NAME": "pbj - change directories using mnemonics saved in a categorized list",
@@ -92,6 +92,23 @@ authors: Dict[str, List[str]] = {
     ]
 }
 
+license_content: list[str] = [
+    "The MIT License",
+    "Version N/A",
+    "SPDX short identifier: MIT\n",
+
+    "Open Source Initiative Approved License",
+    "Copyright 2025, Michael D'Sa\n",
+
+    "Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n",
+    "The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.",
+    "THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n",
+]
+
+license: Dict[str, list[str]] = {
+    "LICENSE": license_content
+}
+
 def help() -> None:
     help_name()
     help_synopsis()
@@ -101,6 +118,7 @@ def help() -> None:
     help_standards()
     help_examples()
     help_authors()
+    help_license()
 
 def help_name() -> None:
     content: Dict[str, str] = name
@@ -229,4 +247,10 @@ def help_authors() -> None:
     return
 
 def help_license() -> None:
+    content: Dict[str, list[str]] = license
+    for key, items in license.items():
+        print(wrapper1.fill(key))
+        for para in items:
+            print(wrapper3.fill(para))
+            
     return

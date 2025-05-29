@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+  pbj() {
+	# Get the parent dir of this script, and resolve '/pbj.py'
+	# PARENT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+	PARENT_DIR=$(dirname "$(realpath "${BASH_SOURCE[0]}")")
+	pbjpy="$PARENT_DIR/pbj.py"
+	
+	# if arg1 starts with dash, run in this shell
+	if [[ ${1:0:1} == "-" ]]; then
+		"$pbjpy" "$@"
+		return 0
+	fi
+	
+	# if no dash, first set this shell's terminal
+	# width. This is so that the subsequent subshell
+	# call gets the width of the terminal right.
+	terminal_width=$(tput cols)
+	"$pbjpy" "--set-term-width" $terminal_width
+	
+	# if successful, grab the output from a subshell
+	# call and cd to the output if its a directory
+	if [[ $? -eq 0 ]]; then
+	    pbj_output="$($pbjpy $@)"
+	    if [ -d "$pbj_output" ]; then
+		    # cd to pbj_output in this shell
+		    cd "$pbj_output"
+	    else
+		    echo "$pbj_output" 
+	    fi
+	fi
+  }

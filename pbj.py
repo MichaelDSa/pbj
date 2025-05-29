@@ -116,7 +116,7 @@ def change_keyname_dialogue(bookmarks: Dict[str, Dict[str, str]], category: str)
         print("or just enter name of key/cat to change.")
         selection = input("(cat|key|?|!|.) input: ")
         if selection in bookmarks: # if selection matches a category name
-            category_to_change == selection
+            category_to_change = selection
             is_cat = True
         elif selection in bookmarks[category]: # if seleciton is a key in current category
             key_to_change = selection
@@ -310,7 +310,6 @@ def init_bookmarks_file() -> bool:
     initial_bookmarks: Dict[str, Dict[str, str]] = {
         "default": {
             "pbj.bookmarks": f"{os.path.dirname(bookmarks_file)}",
-            "pbj.config": f"{os.path.dirname(CONFIG_FILE)}"
             }
     }
 
@@ -934,7 +933,7 @@ if __name__ == "__main__":
 
     #####TEST BRANCH#####
     elif num_args > 1 and is_test:
-        print("Baby, my heart's on fire.")
+        pbj_help.help_license()
 
     # change default category
     elif num_args > 1 and opt_cd:
@@ -1012,7 +1011,7 @@ if __name__ == "__main__":
             dir: str = change_directory(bookmarks, category, keynum)
             print(os.path.abspath(dir))
     else:
-        print("`pbj --info` | `pbj --help`")
+        pbj_help.help_synopsis()
     # os.system("/bin/bash") 
     # this will create a new subshell in the client terminal
     # for example, to exit the terminal you'll have to ctr-d 

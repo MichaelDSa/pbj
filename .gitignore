@@ -1,4 +1,9 @@
+# folders
+images_/
 notes/
+pbj_test/
 __pycache__/
 .vscode/
 
+# files
+nohup.out
