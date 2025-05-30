@@ -6,33 +6,35 @@
 </div>
 
 ## TOC
-* [Description](#description)
+* [What is pbj?](#what-is-pbj)
   * [Development](#development)
   * [Why the Name, 'pbj' was Chosen](#why-the-name-pbj-was-chosen)
 * [Getting Started:](#getting-started)
   * [Installation:](#installation)
   * [Advanced Installation:](#advanced-installation)
 * [Executing pbj:](#executing-pbj)
+* [Demo:](#demo)
 * [Examples / TLDR](#examples--tldr)
 * [Help:](#help)
-  * [Installation Troubleshooting:](#installation-troubleshooting)
+  * [Troubleshooting Installation](#troubleshooting-installation)
   * [Known Issues:](#known-issues)
 * [Author:](#author)
 * [License:](#license)
 
-## Description:
+## What is pbj?:
 
 * **`pbj`** is a directory bookmarks manager created to covercome the friction of remembering and navigating to long directory names on the command line.  
 * **`pbj`** will save your directories using bookmark names you can easily remember.
 * **`pbj`** prints directory lists of long directory urls neatly, with ledgible text wrapping
 * **`pbj`** mitigates unmanagably long lists of bookmarks with categorization options.
 
-##### Development:
+### Development:
 
-* **`pbj`** is currently making my command line experience more pleasurable on my **Ubuntu 24.04** laptop. It's running without issue, and I'm actively ironing out finer details as they occur. Exploration of unstable ideas will occur in a separate branch.
-* I plan to make **`pbj`** functional on both mac and win, and am working on the known issues seen below.
+* **`pbj`** works as expected on my **Ubuntu 24.04** laptop.
+* There is one known issue currently being worked on.
+* There are plans to make pbj functional on mac and win.
 
-##### Why The name, 'pbj' was Chosen
+### Why The name, 'pbj' was Chosen
 I like ***choice***, and I like *peanutbutter and jelly*. With **`pbj`**, you get to refer to your directories with whatever name you choose!
 * Btw,  `pbj` is made with **Python**, **Bash**, and **JSON**. 
 
@@ -72,15 +74,15 @@ pbj has not yet been tested on other shells like zsh or fish.
 
 ---
 
-### Advanced Installation:
+## Advanced Installation:
 The steps below might be overkill for some, but they were tested anyway.  If they look unfamiliar, just stick with the above method.
 
-#### Alternatives to step 2. `~/.local/` or `/usr/bin` installation:
+### Alternatives to step 2. `~/.local/` or `/usr/bin` installation:
 These installation methods involve creating symlinks in either `~/.local` or `usr/bin`.   
 
 After following step 1 by cloning the pbj repository in your preferred dir, Look at either **a)** or **b)** as alternatives to step 2.
 
-#### a) create symlinks in `~/.local/share/` & `~/.local/bin`
+### a) create symlinks in `~/.local/share/` & `~/.local/bin`
 
 1. Link the cloned directory to `~/.local/share`:
 
@@ -99,7 +101,7 @@ After following step 1 by cloning the pbj repository in your preferred dir, Look
 
         source pbj
 
-#### b) create symlink in `/usr/bin`:
+### b) create symlink in `/usr/bin`:
 
 1. link the pbj applicaton to `/usr/bin`. you will have to enter your credentials and pres enter:
 
@@ -129,13 +131,20 @@ After following step 1 by cloning the pbj repository in your preferred dir, Look
 
 ---
 
+## Demo:
+<div align="center">
+
+![](./assets/output2.gif) 
+
+</div>
+
 ## Examples / TLDR:
-(how you'd use **`pbj`**)
- ###### Print a list of saved directories, like this:
+
+ Print a list of saved directories, like this:
 
     $ pbj
 
-###### You will then get a list like this:
+You will then get a list like this:
         
     paths found in 'default':
         1) d.img: /home/user/Downloads/images
@@ -147,31 +156,31 @@ After following step 1 by cloning the pbj repository in your preferred dir, Look
 
 <sup>-*Above is a list of directories in the* 'default category'</sup>
 
-###### Choose which directory to `cd` to like this: 
+Choose which directory to `cd` to like this: 
 
         $ pbj 3
 
 
 <sup>-*This will cd to* `/home/user/OneDrive/Desktop/My_Saved_Directory`. btw, u can skip the list just use this command.</sup>  
 
-###### You can also `cd` to a directory like this:
+You can also `cd` to a directory like this:
 
         $ pbj mydir
 
 <sup>-*same result as `pbj 3`*</sub> 
 
-###### To save a directory, first `cd` to desired directory and do:  
+To save a directory, first `cd` to desired directory and do:  
 
       $ pbj -s mydir
 
 <sup>-*In place of `mydir`, insert your own mnemonic* **`pbj`** will not overwrite when using **`-s`** option.</sup>
 
-###### Get the list of bookmarks from other categories like this:
+Get the list of bookmarks from other categories like this:
 
         pbj mycategory
 
 
-###### You can view many more examples in the help manual by installing pbj, and typing:  
+You can view many more examples in the help manual by installing pbj, and typing:  
 `pbj -h tldr`  or  
 `pbj -h examples` or
 `pbj -h all` or
@@ -191,7 +200,7 @@ After following step 1 by cloning the pbj repository in your preferred dir, Look
 synopsis of **`pbj -h`**:
 
         pbj -h|--help [all|synopsis|description|options|files|standards|examples|tldr|help|author|license] 
-### Installation troubleshooting:
+### Troubleshooting Installation:
 If after setting up symlinks in `~/.local/share`, `~/.local/bin` or `/usr/bin`, the application does not work, or does not change the directory in your terminal, It could be either that the `source` call is missing from `~/.bashrc`, or the pbj directory has been moved from its original location. 
 
 navigate to your home directory:
@@ -220,7 +229,7 @@ If the symlinks were set up properly, you should find yourself in a different di
 ### Known issues:
 Things being worked on:
 
-1. **The 'default' category is being used as a *current category*:** For now, the 'default' category is filling in for 'current category'. The issue with using the 'default' category as the 'current' category is that it maintains the same state across all terminal sessions. Changing the current category in one session should not change the current category in another simultaneoulsy running session. This behavior makes sense for a default category, but pbj should have a 'current category' in place that will maintain its state on a per-session basis.
+1. **The 'default' category is being used as a *current category*:** For now, the 'default' category is filling in for 'current category'. The issue with using the 'default' category as the 'current' category is that it maintains the same state across all terminal sessions. This makes the experience confusing when swchitching panes in tmux or to another terminal window. Changing the current category in one session should not change the current category in another simultaneoulsy running session. This behavior makes sense for a default category, but pbj should have a 'current category' in place that will maintain its state on a per-session, rather than global basis.
 ## Author:
 * Michael DSa
 ## License:
