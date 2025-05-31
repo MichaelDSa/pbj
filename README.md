@@ -1,7 +1,7 @@
 <div align="center">
 
 # pbj 
-![pbj sandwich](images/img1_12.png)
+![pbj sandwich](assets/img1_12.png)
 ##### Organized Bookmarks for your Directories
 </div>
 
@@ -23,6 +23,7 @@
 
 ## What is pbj?:
 
+* `cd` to your most common, or overly verbose directories with `pbj [your_bookmark]`
 * **`pbj`** is a directory bookmarks manager created to covercome the friction of remembering and navigating to long directory names on the command line.  
 * **`pbj`** will save your directories using bookmark names you can easily remember.
 * **`pbj`** prints directory lists of long directory urls neatly, with ledgible text wrapping
@@ -32,7 +33,7 @@
 
 * **`pbj`** works as expected on my **Ubuntu 24.04** laptop.
 * There is one known issue currently being worked on.
-* There are plans to make pbj functional on mac and win.
+* There are plans to make pbj functional for use with mac and win.
 
 ### Why The name, 'pbj' was Chosen
 I like ***choice***, and I like *peanutbutter and jelly*. With **`pbj`**, you get to refer to your directories with whatever name you choose!
