@@ -824,6 +824,7 @@ if __name__ == "__main__":
     bookmarks: Dict[str, Dict[str, str]] = load_bookmarks()
     num_args: int = len(sys.argv)
     default_category: str = get_config_value()
+    pbj_env: str = os.environ.get("PBJ_ENV")
 
     # booleans indicating presence/absence of short and long options:
     no_dash: bool = True
@@ -832,6 +833,7 @@ if __name__ == "__main__":
     opt_s: bool = False
     opt_c: bool = False
     opt_cd: bool = False
+    opt_cu: bool = False
     opt_r: bool = False
     opt_rc: bool = False
     is_test: bool = False
@@ -844,6 +846,7 @@ if __name__ == "__main__":
         opt_s = arg == "-s"   # save [category and] key
         opt_c = arg == "-c"   # create/change [category] [key]
         opt_cd = arg == "-cd" # change default category
+        opt_cu = arg == "-cu" # change current category
         opt_r = arg == "-r"   # remove key
         opt_rc = arg == "-rc" # remove category
         is_test = arg == "-test"  # tests for noob devs
@@ -933,7 +936,16 @@ if __name__ == "__main__":
 
     #####TEST BRANCH#####
     elif num_args > 1 and is_test:
-        pbj_help.help_license()
+        arg1: str = ""
+        arg2: str = ""
+        if num_args > 2:
+            arg1 = sys.argv[2]
+        if num_args > 3:
+            arg2 = sys.argv[3]
+        if arg2:
+            print(f"{arg1} {arg2}")
+        if arg1:
+            print(f"{arg1}")
 
     # change default category
     elif num_args > 1 and opt_cd:
@@ -987,6 +999,21 @@ if __name__ == "__main__":
         elif found:
             print("deletion aborted/unsuccessful")
             print("note: current category cannot be deleted.")
+
+######-cu#########################################
+    elif num_args > 1 and opt_cu:
+        if num_args == 2:
+            # change_current_category_dialogue()
+            print("selection dialogue function") 
+        if num_args == 3:
+            # change_current_category(sys.argv[2])
+            # sys.argv[2] is the new candidate for current category
+            print(sys.argv[2])
+        if num_args == 4:
+            # sys.argv[2] is new candidate for current category and sys.argv[3] is key of that category
+            print(f"{sys.argv[2]} {sys.argv[3]}")
+
+########-cu#######################################
 
     elif no_dash:
         # if no args:
