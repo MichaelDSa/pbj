@@ -6,60 +6,22 @@ export PBJ_CURRENT_CATEGORY
 	PBJ_PARENT_DIR=$(dirname "$(realpath "${BASH_SOURCE[0]}")")
 	pbjpy="$PBJ_PARENT_DIR/pbj.py"
 	
-	# if arg1 starts with '-test' (test for change current category)
-	if [[ $1 == "-test" ]]; then
-		pbj_output="$($pbjpy $@)"
-		read -a output_array <<< "$pbj_output"
-		#output_array=($pbj_output)
-		pbj_env=${output_array[0]}
-		pbj_dir=$([[ -n ${output_array[1]} ]] && echo ${output_array[1]} || echo "")
-
-		if [[ -n $pbj_env ]] && [[ -d $pbj_dir ]]; then
-			export PBJ_CURRENT_CATEGORY="$pbj_env"
-			cd "$pbj_dir"
-			return 0
-		fi
-		return 1
-	fi
-
-	# if arg1 starts with '-cu' (change current category)
-	if [[ $1 == "-cu" ]]; then
-		pbj_output="$($pbjpy "$@")"
-		read -ra output_array <<< "$pbj_output"
-		pbj_env=""
-		pbj_dir=""
-		num_args="${#output_array[@]}"
-
-		#TESTS: 
-		echo $pbj_output
-		echo ${output_array[*]}
-		echo "num_args: $num_args"
-
-		if [[ $num_args == 1 ]]; then
-			pbj_env="${output_array[0]}"
-			if [[ -n $pbj_env ]]; then
-				export PBJ_CURRENT_CATEGORY=$pbj_env
-				return 0
-			else
-				echo "change of current category failed"
-			fi
-			return 1
-		elif [[ $num_args == 2 ]]; then
-			pbj_env="${output_array[0]}"
-			pbj_dir="${output_array[1]}"
-			if [[ -n $pbj_env ]] && [[ -d $pbj_dir ]]; then
-				export PBJ_CURRENT_CATEGORY=$pbj_env
-				cd $pbj_dir || return 0
-			else
-				echo "change of current category and change directory failed"
-				return 1
-		fi
-		return 0
-	fi
 	
 	# if arg1 starts with dash, run in this shell
 	if [[ ${1:0:1} == "-" ]]; then
 		"$pbjpy" "$@"
+		set_current_cat_tmp_file="/tmp/pbj_set_current_category_$$.tmp"
+		
+		if [[ -e $set_current_cat_tmp_file ]]; then
+			source $set_current_cat_tmp_file
+			rm $set_current_cat_tmp_file
+			export $PBJ_CURRENT_CATEGORY
+			if [[ -n "$PBJ_NEWDIR" ]]; then
+				cd "$PBJ_NEWDIR" || return 0
+				PBJ_NEWDIR=""
+				#unset $PBJ_NEWDIR
+			fi
+		fi
 		return 0
 	fi
 	

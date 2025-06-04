@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import pbj_help
 import json
+import tempfile
 import textwrap
 from typing import Dict, OrderedDict, Tuple, Dict
 import os # OS routines for NT or Posix depending on what system we're on.
@@ -262,6 +263,12 @@ def get_config_value(key: str ="default_category") -> str:
     
     return value
 
+def get_current_category() -> str:
+    default_category: str = get_config_value()
+    current_category: str = os.environ.get("PBJ_CURRENT_CATEGORY")
+    if not current_category:
+        current_category = default_category
+    return current_category
 
 def get_terminal_width() -> int:
     width: int 
@@ -767,6 +774,62 @@ def set_config_value(key: str = "default_category", value: str = "default") -> b
 
     return success
 
+def set_current_category(bookmarks: Dict[str, Dict[str, str]], category: str = None, keynum: str = None)-> bool:
+    success: bool = True
+    old_current_category: str = get_current_category() 
+    new_current_category: str = ""
+    new_current_directory: str = ""
+    if category == None:
+        print(f"current category: {old_current_category}")
+        print("change current category:")
+        choice = choose_category(bookmarks)
+        if choice != ".":
+            new_current_category = choice
+        else:
+            success = False
+    elif category_is_valid(category) and category in bookmarks:
+        new_current_category = category
+    else:
+        success = False
+    
+    key: str = keynum
+    # assign value to `new_current_directory`, but first:
+    # if success, and keynum is a number, get the corresponding key
+    if success and keynum:
+        keys: list = list(bookmarks[new_current_category])
+        num: int = -1 if not keynum.isdecimal() else int(keynum)
+        if 1 <= num <= len(keys):
+            key = keys[num -1]
+        # if key is relevant:  
+        if key in bookmarks[new_current_category]:
+            new_current_directory = bookmarks[category][key]
+        else:
+            success = False
+
+    # if cat and dir change successful, prepare to write
+    # current category env to temp file.  The bash script
+    # will set the env and change dir using the file contents
+    if success:
+        parent_pid: int = os.getppid()
+        temp_dir: str = tempfile.gettempdir()
+        temp_filename: str = os.path.join(temp_dir, f"pbj_set_current_category_{parent_pid}.tmp")
+
+        # write to temp file:
+        try:
+            # bash script will source and rm temp file
+            with open(temp_filename, 'w') as f:
+                # bash script will export variable
+                f.write(f"PBJ_CURRENT_CATEGORY=\"{new_current_category}\"\n")
+                if new_current_directory:
+                    # bash script will cd to new dir if var exists
+                    f.write(f"PBJ_NEWDIR=\"{new_current_directory}\"\n")
+        except Exception as e:
+            success = False
+            print(f"set_current_category() Exception handling... {temp_filename}\nexception type: {type(e).__name__}: \n{e}")
+
+    # set env var, PBJ_CURRENT_CATEGORY in bash script
+    return success
+
 def set_terminal_width(width: str = "80") -> bool:
     val = width if width.isdecimal() else "80"
     return set_config_value("terminal_width", val)
@@ -824,7 +887,7 @@ if __name__ == "__main__":
     bookmarks: Dict[str, Dict[str, str]] = load_bookmarks()
     num_args: int = len(sys.argv)
     default_category: str = get_config_value()
-    pbj_env: str = os.environ.get("PBJ_ENV")
+    current_category: str = get_current_category()
 
     # booleans indicating presence/absence of short and long options:
     no_dash: bool = True
@@ -936,16 +999,7 @@ if __name__ == "__main__":
 
     #####TEST BRANCH#####
     elif num_args > 1 and is_test:
-        arg1: str = ""
-        arg2: str = ""
-        if num_args > 2:
-            arg1 = sys.argv[2]
-        if num_args > 3:
-            arg2 = sys.argv[3]
-        if arg2:
-            print(f"{arg1} {arg2}")
-        if arg1:
-            print(f"{arg1}")
+        set_current_category(bookmarks, "default", "pbj")
 
     # change default category
     elif num_args > 1 and opt_cd:
@@ -1004,21 +1058,25 @@ if __name__ == "__main__":
     elif num_args > 1 and opt_cu:
         if num_args == 2:
             # change_current_category_dialogue()
-            print("selection dialogue function") 
+            set_current_category(bookmarks)
+            
         if num_args == 3:
-            # change_current_category(sys.argv[2])
-            # sys.argv[2] is the new candidate for current category
-            print(sys.argv[2])
+            # specify new current category
+            new_category: str = sys.argv[2]
+            set_current_category(bookmarks, new_category)
+
         if num_args == 4:
-            # sys.argv[2] is new candidate for current category and sys.argv[3] is key of that category
-            print(f"{sys.argv[2]} {sys.argv[3]}")
+            # speciry new current category and key to cd to.
+            new_category: str = sys.argv[2]
+            keynum: str = sys.argv[3]
+            set_current_category(bookmarks, new_category, keynum)
 
 ########-cu#######################################
 
     elif no_dash:
         # if no args:
         if num_args == 1:
-            ls_category(bookmarks, default_category)
+            ls_category(bookmarks, current_category)
         # elif 1 args: ex: ./pbj
         elif num_args == 2: #change directory default_category: ./pbj [key | num]
             arg1: str = sys.argv[1]
@@ -1027,7 +1085,7 @@ if __name__ == "__main__":
                 ls_category(bookmarks, arg1)
             # change directory to the key of arg[1]
             else: 
-                dir: str = change_directory(bookmarks, default_category, arg1)
+                dir: str = change_directory(bookmarks, current_category, arg1)
                 print(os.path.abspath(dir))
             # print(os.getcwd())
         # elif 3 args: ex ./pbj [category] [alphanum | number]
