@@ -956,24 +956,24 @@ if __name__ == "__main__":
         ls_all(bookmarks)
     # if 2 args and arg[1] is -c. ex: `./pbj -c`
     elif num_args == 2 and opt_c: 
-        change_keyname_dialogue(bookmarks, default_category)
+        change_keyname_dialogue(bookmarks, current_category)
     # if arg[1] is -s|-c: (save bookmark | change value or create category)
     elif num_args > 2 and opt_s or opt_c: 
         # if 3 args: ex: ./pbj -s [alphanum (key)] (save to default)
         if num_args == 3: 
             key: str = sys.argv[2]
-            if key in bookmarks[default_category]:
+            if key in bookmarks[current_category]:
                 if opt_s:
-                    print(f"key ({key}) already assigned to '{bookmarks[default_category][key]}'.")
+                    print(f"key ({key}) already assigned to '{bookmarks[current_category][key]}'.")
                     print("use '-c' option to change key's value")
                 elif opt_c:
-                    old_value: str = bookmarks[default_category][key]
-                    if save_to_category(bookmarks, default_category, key):
-                        new_value: str = bookmarks[default_category][key]
+                    old_value: str = bookmarks[current_category][key]
+                    if save_to_category(bookmarks, current_category, key):
+                        new_value: str = bookmarks[current_category][key]
                         print(f"Old {key} value: {old_value}")
                         print(f"New {key} value: {new_value}")
             else:
-                save_to_category(bookmarks, default_category, key)
+                save_to_category(bookmarks, current_category, key)
         # elif 4 args: ex: ./pbj -s|-c [category] [key] (save to specified cat. or newly created cat)
         elif num_args == 4: 
             category: str = sys.argv[2]
@@ -1011,13 +1011,13 @@ if __name__ == "__main__":
     # if arg[1] is -r: (remove path) WORKING...
     elif num_args > 2 and opt_r:
         # if 3 args: ex ./pbj -r [alphanum key]
-        if num_args == 3: # remove keypair from default_category
+        if num_args == 3: # remove keypair from current_category
             key: str = sys.argv[2]
             path: str = ""
-            if key in bookmarks[default_category]:
-                path = bookmarks[default_category][key]
-            if delete_key(bookmarks, default_category, key):
-                print(f"keypair deleted from '{default_category}':")
+            if key in bookmarks[current_category]:
+                path = bookmarks[current_category][key]
+            if delete_key(bookmarks, current_category, key):
+                print(f"keypair deleted from '{current_category}':")
                 print(f"{key}: {path}")
             else:
                 print("key does not exist.")
@@ -1078,7 +1078,7 @@ if __name__ == "__main__":
         if num_args == 1:
             ls_category(bookmarks, current_category)
         # elif 1 args: ex: ./pbj
-        elif num_args == 2: #change directory default_category: ./pbj [key | num]
+        elif num_args == 2: #change directory current_category: ./pbj [key | num]
             arg1: str = sys.argv[1]
             # check if arg1 is category:
             if arg1 in bookmarks:
