@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 export PBJ_CURRENT_CATEGORY
+export PBJ_TERM_WIDTH=$(tput cols)
   pbj() {
 	# Get the parent dir of this script, and resolve '/pbj.py'
 	# PARENT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
@@ -10,6 +11,9 @@ export PBJ_CURRENT_CATEGORY
 	# if arg1 starts with dash, run in this shell
 	if [[ ${1:0:1} == "-" ]]; then
 		"$pbjpy" "$@"
+
+		# if user changes uses `-cu` 
+		# option to change current category:
 		set_current_cat_tmp_file="/tmp/pbj_set_current_category_$$.tmp"
 		
 		if [[ -e $set_current_cat_tmp_file ]]; then
@@ -25,14 +29,8 @@ export PBJ_CURRENT_CATEGORY
 		return 0
 	fi
 	
-	# if no dash, first set this shell's terminal
-	# width. This is so that the subsequent subshell
-	# call gets the width of the terminal right.
-	terminal_width=$(tput cols)
-	"$pbjpy" "--set-term-width" $terminal_width
-	
-	# if successful, grab the output from a subshell
-	# call and cd to the output if its a directory
+	# grab output from subshell, call and
+	# cd to the output if its a directory
 	if [[ $? -eq 0 ]]; then
 	    pbj_output="$($pbjpy $@)"
 	    if [ -d "$pbj_output" ]; then
