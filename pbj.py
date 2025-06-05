@@ -2,6 +2,7 @@
 import json
 import tempfile
 import textwrap
+from tkinter import W
 from typing import Dict, OrderedDict, Tuple, Dict
 import os # OS routines for NT or Posix depending on what system we're on.
 import sys
@@ -274,10 +275,10 @@ def get_terminal_width() -> int:
     if sys.stdout.isatty():
         width = os.get_terminal_size().columns
     else:
-        swidth: str = get_config_value("terminal_width")
+        swidth: str = os.environ.get("PBJ_TERM_WIDTH")
         width = 80 if not swidth.isdecimal() else int(swidth)
         if not swidth.isdecimal():
-            print("Warning: width is not int")
+            print("Warning: sidth is not int")
     return width
 
 def initialize() -> bool:
@@ -425,7 +426,6 @@ def init_config_file() -> bool:
     
     # initial config default values:
     default_category: str = "default"
-    terminal_width: str = "80"
     bookmarks_file: str = BOOKMARKS_FILE
             
     # determine option (r|w|x) for file access
@@ -445,7 +445,6 @@ def init_config_file() -> bool:
     # define initial default values:
     default_config: Dict[str, str] = {
         "default_category": default_category,
-        "terminal_width": terminal_width,
         "bookmarks_file": bookmarks_file
     }
 
@@ -829,10 +828,6 @@ def set_current_category(bookmarks: Dict[str, Dict[str, str]], category: str = N
     # set env var, PBJ_CURRENT_CATEGORY in bash script
     return success
 
-def set_terminal_width(width: str = "80") -> bool:
-    val = width if width.isdecimal() else "80"
-    return set_config_value("terminal_width", val)
-
 def sort_bookmarks(bookmarks: Dict[str, Dict[str, str]]) -> OrderedDict[str, OrderedDict[str, str]]:
     sorted_dict: OrderedDict[str, Dict[str, str]] = OrderedDict()
     for ordered_key in sorted(bookmarks.keys()):
@@ -912,17 +907,9 @@ if __name__ == "__main__":
         opt_r = arg == "-r"   # remove key
         opt_rc = arg == "-rc" # remove category
         is_test = arg == "-test"  # tests for noob devs
-        long_opt_set_term_width = arg == "--set-term-width" # set terminal width 
         
-    if num_args > 1 and long_opt_set_term_width:
-        # meant to be used with bash script (pbj-liason) when
-        # `os.get_terminal_size().columns` does not apply. (does not apply
-        # when used in subshell / when sys.stdout.isatty() == False)
-        # - SEE SCRIPT: 'pbj-liason'
-        width = sys.argv[2]
-        set_terminal_width(width)
     # help options
-    elif num_args > 1 and opt_h:
+    if num_args > 1 and opt_h:
         import pbj_help
 
         if num_args == 2:
@@ -1097,6 +1084,7 @@ if __name__ == "__main__":
             dir: str = change_directory(bookmarks, category, keynum)
             print(os.path.abspath(dir))
     else:
+        import pbj_help
         pbj_help.help_synopsis()
     # os.system("/bin/bash") 
     # this will create a new subshell in the client terminal
