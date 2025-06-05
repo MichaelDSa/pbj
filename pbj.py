@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import pbj_help
 import json
 import tempfile
 import textwrap
@@ -924,6 +923,8 @@ if __name__ == "__main__":
         set_terminal_width(width)
     # help options
     elif num_args > 1 and opt_h:
+        import pbj_help
+
         if num_args == 2:
             pbj_help.help_name()
             pbj_help.help_synopsis()
