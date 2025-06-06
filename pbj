@@ -31,13 +31,11 @@ export PBJ_TERM_WIDTH=$(tput cols)
 	
 	# grab output from subshell, call and
 	# cd to the output if its a directory
-	if [[ $? -eq 0 ]]; then
-	    pbj_output="$($pbjpy $@)"
-	    if [ -d "$pbj_output" ]; then
-		    # cd to pbj_output in this shell
-		    cd "$pbj_output"
-	    else
-		    echo "$pbj_output" 
-	    fi
+	pbj_output="$($pbjpy $@)"
+	if [ -d "$pbj_output" ]; then
+		# cd to pbj_output in this shell
+		cd "$pbj_output"
+		else
+		echo "$pbj_output" 
 	fi
   }

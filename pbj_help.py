@@ -10,7 +10,7 @@ indent2: str = f"{indent1 * 2}"
 indent3: str = f"{indent1 * 3}"
 wrapper1: textwrap = textwrap.TextWrapper(width, indent1, indent1, replace_whitespace=False)
 wrapper2: textwrap = textwrap.TextWrapper(width, indent2, indent2, replace_whitespace=False)
-wrapper3: textwrap = textwrap.TextWrapper(width,indent2, indent2, replace_whitespace=False, drop_whitespace=False)
+wrapper3: textwrap = textwrap.TextWrapper(width,indent2, indent2, replace_whitespace=False, drop_whitespace=True)
 # content arrays:
 name: Dict[str, str] = {
     "NAME": "pbj - change directories using mnemonics saved in a categorized list",
@@ -19,24 +19,25 @@ name: Dict[str, str] = {
 
 synopsis: Dict[str, Dict[str, str]] = {
     "SYNOPSIS": {
-        "pbj [-s|-c|-cd|-r|-rc|-a]": "[category|key] [key]",
+        "pbj [-s|-c|-cu|-cd|-r|-rc|-a]": "[category|key] [key]",
         "pbj -h|--help": "[all|synopsis|description|options|files|standards |examples|tldr|help|author|license]"
     }
 }
 
 description: Dict[str, Dict[str, str]] = {
     "DESCRIPTION": {
-        "Save directories to chosen mnemonics:": "pbj saves your current working directory (cwd) as a key within a category.  The key to which the cwd is saved is user-created at the moment of saving.  The key is saved to a default category previously selected by the initialize process, or by the user.  The default category is also known as the current category.  Key-directories can also be explicitly saved to non-default/non-current categories.",
-        "Change directories using mnemonics:": "With pbj the user can cange directories by choosing either the 'speed-dial' or key of the numbered key-directory list associated with a category.  The category can be explicitly chosen, or else the current/default category is selected.  The user can browse num-key-dir lists of either the current/default or specified categories."
+        "Save directories to chosen mnemonics:": "pbj saves your current working directory (cwd) to a key within a category.  The key to which the cwd is saved is user-created at the time of saving.  The key is saved to a either the current category selected by the user, a default category identified in the configuration file, or any other existing category specified by the user.",
+        "Change directories using mnemonics:": "With pbj the user can cange directories by choosing either the 'speed-dial' or key of the numbered key-directory list associated with a category.  The category can be explicitly chosen, otherwise the current category is selected.  The user can browse num-key-dir lists of either the current, specified, or all categories.",
     }
 }
 
 options: Dict[str, Dict[str, str]] = {
     "OPTIONS": {
-        "-s": "Safe save:  Save cwd to new user-created key in the default or specified category.  If the key already exists in the specified category, its value will not be changed.  If the specified category does not exist, it will not be created, and the key-dir will not be saved.",
-        "-c": "Change or Create:  Save cwd to new user-created key in the default or specified category.  If the key already exists in the specified category it will be replaced.  If no arguments follow the -c option, the 'change key-name' dialogue is invoked. This is the dialogue in which the user can change the name of either a key or a category.",
-        "-cd": "Change current/default category:  The argument that follows -cd is the category to become the new current/default. If no argument follows -cd, a dialogue is invoked, providing a numbered list of categories to choose from, which will become the new current/default category if selected.",
-        "-r": "Remove key from current/default category:  If the argument that follows -r is identical to a key in the current/default category, the key-directory pair will be deleted from the ctategory.",
+        "-s": "Safe save:  Save cwd to new user-created key in the current or specified category.  If the key already exists in the specified category, its value will not be changed.  If the specified category does not exist, it will not be created, and the key-dir will not be saved.",
+        "-c": "Change or Create:  Save cwd to new user-created key in the current or specified category.  If the key already exists in the specified category it will be replaced.  If no arguments follow the -c option, the 'change key-name' dialogue is invoked. This is the dialogue in which the user can change the name of either a key or a category.",
+        "-cu": "Change current category: The argument that follows -cu is the category to become the new current category. If no argument follows -cu, a dialogue is invoked, providing a numbered list of categories, of which the user selected category will become the new current cateogry.",
+        "-cd": "Change default category:  The argument that follows -cd is the category to become the new default category. If no argument follows -cd, a dialogue is invoked, providing a numbered list of categories, of whch the suser selected category will become the new default category saved to the configuration file.",
+        "-r": "Remove key from current category:  If the argument that follows -r is identical to a key in the current category, the key-directory pair will be deleted from the ctategory.",
         "-rc": "Remove category:  If the argument that follows -rc is identical to a category in the bookmarks file, it will be removed along with it's  key-dir pairs.",
         "-a": "List all categories and their key-directory contents",
         }
@@ -59,19 +60,23 @@ standards: Dict[str, Dict[str, str]] = {
 
 tldr: Dict[str, Dict[str, str]] = {
     "EXAMPLES (TL;DR)": {
-        "Print numbered key-directory list in current/default category:": "pbj",
-        "Switch to first list item directory in current/default category list:": "pbj 1",
-        "Switch to directory associated with key in current/default category list:": "pbj mykey",
-        "Print numbered key-directory list in specified category:": "pbj mycategory",
-        "Switch to directory associated with key/number in specified category:": f"pbj mycategory mykey \n{indent2}or\n{indent1}pbj mycategory 1",
-        "Safe save a directory to current/default category:": "pbj -s mynewkey",
-        "save a directory to current/default category, replacing key-pair if it exists:": "pbj -c myoldkey",
-        "change key/category name dialogue:": "pbj -c",
-        "change current/default category dialogue:": "pbj -cd",
-        "change current/default category explicitly:": "pbj -cd mycat",
-        "remove key from current/default category:": "pbj -r mykey",
-        "remove category and all associated key-directory pairs:": "pbj -rc mycat",
-        "print all categories and keys:": "pbj -a",
+       "print numbered key-directory list in current category:": "pbj",
+       "switch to first list item directory in current category list:": "pbj 1",
+       "switch to directory associated with key in current category list:": "pbj mykey",
+       "print numbered key-directory list in specified category:": "pbj mycategory",
+       "switch to directory associated with key/number in specified category:": "pbj mycategory mykey\nor\npbj mycategory 1",
+       "safe save a directory to current category:": "pbj -s mynewkey",
+       "save a directory to current category, replacing key-pair if it exists:": "pbj -c myoldkey",
+       "change key/category name dialogue:": "pbj -c",
+       "change current category using an interactive dialogue:": "pbj -cu",
+       "change current category explicitly:": "pbj -cu mycat",
+       "change current category explicitly and change directory:": "pbj -cu mycat mykey",
+       "change default category using an interactive dialogue:": "pbj -cd",
+       "change default category explicitly:": "pbj -cd mycat",
+       "remove key from current category:": "pbj -r mykey",
+       "remove category and all associated key-directory pairs:": "pbj -rc mycat",
+       "print all categories and keys:": "pbj -a",
+
     }
 }
 
@@ -96,14 +101,20 @@ license_content: list[str] = [
     "The MIT License",
     "Version N/A",
     "SPDX short identifier: MIT\n",
-
+    "",
     "Open Source Initiative Approved License",
     "Copyright 2025, Michael D'Sa\n",
-
+    "",
     "Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n",
-    "The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.",
+    "",
+    "The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n",
+    "",
     "THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n",
 ]
+
+version: Dict[str, str] = {
+    "VERSION": "v0.2.1"
+}
 
 license: Dict[str, list[str]] = {
     "LICENSE": license_content
@@ -118,6 +129,7 @@ def help() -> None:
     help_standards()
     help_examples()
     help_authors()
+    help_version()
     help_license()
 
 def help_name() -> None:
@@ -246,11 +258,18 @@ def help_authors() -> None:
     print()
     return
 
+def help_version() -> None:
+    content: Dict[str, str] = version
+    for key, item in content.items():
+        print(key)
+        print(wrapper1.fill(item))
+    print()
+
 def help_license() -> None:
     content: Dict[str, list[str]] = license
     for key, items in license.items():
-        print(wrapper1.fill(key))
+        print(key)
         for para in items:
-            print(wrapper3.fill(para))
+            print(wrapper1.fill(para))
             
     return
