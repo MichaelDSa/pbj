@@ -18,12 +18,13 @@
 * [Help:](#help)
   * [Troubleshooting Installation](#troubleshooting-installation)
   * [Known Issues:](#known-issues)
+* [Version History](#version-history)
 * [Author:](#author)
 * [License:](#license)
 
 ## What is pbj?:
 
-* `cd` to your most common, or overly verbose directories with `pbj [your_bookmark]`
+* **`cd`** to your most common, or overly verbose directories with `pbj [your_bookmark]`
 * **`pbj`** is a directory bookmarks manager created to covercome the friction of remembering and navigating to long directory names on the command line.  
 * **`pbj`** will save your directories using bookmark names you can easily remember.
 * **`pbj`** prints directory lists of long directory urls neatly, with ledgible text wrapping
@@ -32,8 +33,7 @@
 ### Development:
 
 * **`pbj`** works as expected on my **Ubuntu 24.04** laptop.
-* There is one known issue currently being worked on.
-* There are plans to make pbj functional for use with mac and win.
+* There are plans to make **`pbj`** functional for use with mac and win.
 
 ### Why The name, 'pbj' was Chosen
 I like ***choice***, and I like *peanutbutter and jelly*. With **`pbj`**, you get to refer to your directories with whatever name you choose!
@@ -230,7 +230,12 @@ If the symlinks were set up properly, you should find yourself in a different di
 ### Known issues:
 Things being worked on:
 
-1. **The 'default' category is being used as a *current category*:** For now, the 'default' category is filling in for 'current category'. The issue with using the 'default' category as the 'current' category is that it maintains the same state across all terminal sessions. This makes the experience confusing when swchitching panes in tmux or to another terminal window. Changing the current category in one session should not change the current category in another simultaneoulsy running session. This behavior makes sense for a default category, but pbj should have a 'current category' in place that will maintain its state on a per-session, rather than global basis.
+**lack of *Current category*. Default category is used as stand-in**.
+- [x] Completed. Current category implemented in v0.2.0
+
+## Version History:
+![version history screenshot](./assets/version_screenshot.png)
+
 ## Author:
 * Michael DSa
 ## License:

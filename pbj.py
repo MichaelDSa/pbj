@@ -937,6 +937,8 @@ if __name__ == "__main__":
                 pbj_help.help_example_help_options()
             elif help_option == "author":
                 pbj_help.help_authors()
+            elif help_option == "version":
+                pbj_help.help_version()
             elif help_option == "license":
                 pbj_help.help_license()
     # list all bookmarks:
