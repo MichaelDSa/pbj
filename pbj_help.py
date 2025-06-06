@@ -64,7 +64,7 @@ tldr: Dict[str, Dict[str, str]] = {
        "switch to first list item directory in current category list:": "pbj 1",
        "switch to directory associated with key in current category list:": "pbj mykey",
        "print numbered key-directory list in specified category:": "pbj mycategory",
-       "switch to directory associated with key/number in specified category:": "pbj mycategory mykey\nor\npbj mycategory 1",
+       "switch to directory associated with key/number in specified category:": f"pbj mycategory mykey\n{indent2}or\n{indent1}pbj mycategory 1",
        "safe save a directory to current category:": "pbj -s mynewkey",
        "save a directory to current category, replacing key-pair if it exists:": "pbj -c myoldkey",
        "change key/category name dialogue:": "pbj -c",
