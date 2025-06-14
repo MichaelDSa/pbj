@@ -2,7 +2,6 @@
 import json
 import tempfile
 import textwrap
-from tkinter import W
 from typing import Dict, OrderedDict, Tuple, Dict
 import os # OS routines for NT or Posix depending on what system we're on.
 import sys
@@ -1087,9 +1086,11 @@ if __name__ == "__main__":
             print(os.path.abspath(dir))
     else:
         import pbj_help
+        arg: str = ""
+        if num_args > 1:
+            for i in sys.argv[1:]:
+                arg += i + " "
+            arg = arg.strip()
+        print(f"'{arg}' not recognized.\nsee pbj -h options\n")
         pbj_help.help_synopsis()
-    # os.system("/bin/bash") 
-    # this will create a new subshell in the client terminal
-    # for example, to exit the terminal you'll have to ctr-d 
-    # multiple times. Instead, use bash wrapper.
                 

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 export PBJ_CURRENT_CATEGORY
-export PBJ_TERM_WIDTH=$(tput cols)
   pbj() {
+	export PBJ_TERM_WIDTH=$(tput cols)
 	# Get the parent dir of this script, and resolve '/pbj.py'
 	# PARENT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 	PBJ_PARENT_DIR=$(dirname "$(realpath "${BASH_SOURCE[0]}")")
