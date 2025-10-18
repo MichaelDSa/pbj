@@ -353,7 +353,7 @@ def init_bookmarks_file() -> bool:
 
                 # write initial_bookmarks to file if not exists or has no content.
                 if option in (MODE_CREATE, MODE_WRITE):
-                    json.dump(initial_bookmarks, f, indent=4, sort_key=True)
+                    json.dump(initial_bookmarks, f, indent=4, sort_keys=True)
 
                 file_read = json.load(f)
             except json.JSONDecodeError as je:
