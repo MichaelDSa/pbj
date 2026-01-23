@@ -221,9 +221,14 @@ def change_category_name(bookmarks: Dict[str, Dict[str, str]], category_to_chang
     save_to_bookmarks_file(bookmarks)
 
     # if changed category was default_category:
-    default_category = get_config_value()
+    default_category: str = get_config_value()
     if  category_to_change == default_category:
         set_config_value(value=new_name)
+
+    # if changed category was current category:
+    current_category: str = os.environ.get("PBJ_CURRENT_CATEGORY")
+    if category_to_change == current_category:
+        set_current_category(bookmarks, new_name)
 
 def change_key_name(bookmarks: Dict[str, Dict[str, str]], category: str, key_to_change: str, new_name: str) -> None:
     value: str = bookmarks[category][key_to_change]
