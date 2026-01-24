@@ -467,9 +467,9 @@ def init_config_file() -> bool:
         print(f"option: {option}")
         print(f"Exception handling {CONFIG_FILE} ({type(e).__name__}): \n{e}")
 
-    # if json file has fewer keys than default_config,
-    # save the missed key-vals to the file:
-    if len(default_config) > len(file_read):
+    # if file_read and default_config do not have identical keys or if
+    # default_config is smaller, save the missing key-vals to the file:
+    if len(default_config) > len(file_read) or list(default_config) != list(file_read):
         # only add if key in default_config is missing from file_read
         file_read.update({k: v for k, v in default_config.items() if k not in file_read})
         try:
@@ -735,18 +735,20 @@ def save_to_bookmarks_file(bookmarks: Dict[str, Dict[str, str]]) -> bool:
             for key, path in dups[category].items():
                 print(f"  {key}: {path}")
 
-    option: str = 'w' if os.path.exists(BOOKMARKS_FILE) else 'x'
+    bookmarks_file: str = get_config_value("bookmarks_file")
+    option: str = 'w' if os.path.exists(bookmarks_file) else 'x'
     try:
         # in case parent directories do not exist:
-        dirs = os.path.dirname(BOOKMARKS_FILE)
+        dirs = os.path.dirname(bookmarks_file)
         os.makedirs(dirs, exist_ok=True)
 
         # read/write/create file to persist data:
-        with open(BOOKMARKS_FILE, option) as f:
-            json.dump(bookmarks, f, indent=4)
+        with open(bookmarks_file, option) as f:
+            json.dump(bookmarks, f, indent=4, sort_keys=True)
     except Exception as e:
         # Prints error message, and {type(e)..} name/type of exception and {e} error
-        print(f"Error saving to BOOKMARKS_FILE in save_to_bookmarks_file(). ({type(e).__name__}): {e}")
+        print(f"Error saving to bookmarks_file ({bookmarks_file}) in save_to_bookmarks_file(). ({type(e).__name__}): {e}")
+        print(f"bookmarks_file config value: {bookmarks_file}")
         return False
     return True
     
