@@ -310,7 +310,7 @@ def init_bookmarks_file() -> bool:
     success: bool = True
     
     # get path of bookmarks file from config. set config value if not set.
-    bookmarks_file = get_config_value("bookmarks_file")
+    bookmarks_file: str = get_config_value("bookmarks_file")
     if not bookmarks_file:
         set_config_value("bookmarks_file", BOOKMARKS_FILE)
         bookmarks_file = get_config_value("bookmarks_file")
@@ -324,7 +324,7 @@ def init_bookmarks_file() -> bool:
     }
 
     # test if parent directories of the bookmarks_file exists
-    bookmarks_parent_dirs = os.path.dirname(bookmarks_file)
+    bookmarks_parent_dirs: str = os.path.dirname(bookmarks_file)
     if bookmarks_file != BOOKMARKS_FILE and not os.path.exists(bookmarks_parent_dirs):
         print(f"Please fix config.json in {CONFIG_FILE}.")
         print(f"the directory/directories associated with \"bookmarks_file\" \nmust be created by user, or choose a path that exists.")
