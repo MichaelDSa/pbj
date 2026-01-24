@@ -7,12 +7,12 @@ import os # OS routines for NT or Posix depending on what system we're on.
 import sys
 
 # You can change bookmarks_file valuevia config.json
-# you can change configuration_file value here,
+# you can change configuration_file value here, and in init_config_file()
 # but first manually create parent dirs.
-bookmarks_file = "~/.config/pbj/bookmarks.json"
-configuration_file = "~/.config/pbj/config.json"
-BOOKMARKS_FILE = os.path.expanduser(bookmarks_file)
-CONFIG_FILE = os.path.expanduser(configuration_file)
+bookmarks_file: str = "~/.config/pbj/bookmarks.json"
+configuration_file: str= "~/.config/pbj/config.json"
+BOOKMARKS_FILE: str = os.path.expanduser(bookmarks_file)
+CONFIG_FILE: str = os.path.expanduser(configuration_file)
 
 def category_is_valid(value: str) -> bool:
     """
@@ -45,8 +45,8 @@ def category_is_valid(value: str) -> bool:
     
 def change_default_category(bookmarks: Dict[str, Dict[str, str]], category: str = None) -> bool:
     success: bool = True
-    success_msg = "default category changed to "
-    fail_msg = "default category not changed."
+    success_msg: str = "default category changed to "
+    fail_msg: str = "default category not changed."
     if category:
         if category in bookmarks:
             if set_config_value(value=category):
@@ -200,7 +200,6 @@ def choose_category(bookmarks: Dict[str, Dict[str, str]]) -> str:
 def choose_key(bookmarks: Dict[str, Dict[str, str]], category: str) -> str:
     choices: list[str] = list(bookmarks[category])
     choice: str = ""
-    choice = "" 
     chosen = False
     ls_category(bookmarks, category)
     while not chosen:
@@ -222,9 +221,14 @@ def change_category_name(bookmarks: Dict[str, Dict[str, str]], category_to_chang
     save_to_bookmarks_file(bookmarks)
 
     # if changed category was default_category:
-    default_category = get_config_value()
+    default_category: str = get_config_value()
     if  category_to_change == default_category:
         set_config_value(value=new_name)
+
+    # if changed category was current category:
+    current_category: str = os.environ.get("PBJ_CURRENT_CATEGORY")
+    if category_to_change == current_category:
+        set_current_category(bookmarks, new_name)
 
 def change_key_name(bookmarks: Dict[str, Dict[str, str]], category: str, key_to_change: str, new_name: str) -> None:
     value: str = bookmarks[category][key_to_change]
@@ -252,7 +256,7 @@ def delete_key(bookmarks: Dict[str, Dict[str, str]], category: str, key: str) ->
 def get_config_value(key: str ="default_category") -> str:
     # see list of values in `default_config` var
     # defined in init_config_file() definition.
-    value = ""
+    value: str = ""
     try:
         with open(CONFIG_FILE, 'r') as f:
             value = json.load(f)[key]
@@ -306,7 +310,7 @@ def init_bookmarks_file() -> bool:
     success: bool = True
     
     # get path of bookmarks file from config. set config value if not set.
-    bookmarks_file = get_config_value("bookmarks_file")
+    bookmarks_file: str = get_config_value("bookmarks_file")
     if not bookmarks_file:
         set_config_value("bookmarks_file", BOOKMARKS_FILE)
         bookmarks_file = get_config_value("bookmarks_file")
@@ -320,16 +324,16 @@ def init_bookmarks_file() -> bool:
     }
 
     # test if parent directories of the bookmarks_file exists
-    bookmarks_parent_dirs = os.path.dirname(bookmarks_file)
+    bookmarks_parent_dirs: str = os.path.dirname(bookmarks_file)
     if bookmarks_file != BOOKMARKS_FILE and not os.path.exists(bookmarks_parent_dirs):
         print(f"Please fix config.json in {CONFIG_FILE}.")
         print(f"the directory/directories associated with \"bookmarks_file\" \nmust be created by user, or choose a path that exists.")
         return False
 
     # determine option (r|w|x) for file access
-    MODE_READ = 'r'
-    MODE_WRITE = 'w'
-    MODE_CREATE = 'x'
+    MODE_READ: str = 'r'
+    MODE_WRITE: str = 'w'
+    MODE_CREATE: str = 'x'
 
     option: str = None
     if not os.path.exists(bookmarks_file):
@@ -348,7 +352,7 @@ def init_bookmarks_file() -> bool:
             try:
                 # only create parent dirs if set to default constant.
                 if bookmarks_file == BOOKMARKS_FILE:
-                    dirs = os.path.dirname(bookmarks_file)
+                    dirs: str = os.path.dirname(bookmarks_file)
                     os.makedirs(dirs, exist_ok=True)
 
                 # write initial_bookmarks to file if not exists or has no content.
@@ -405,7 +409,7 @@ def init_bookmarks_file() -> bool:
         for cat, msg in errors_in_file_read:
             prefix: str = f"  {num + 1}) '{cat}: "
             width: int = get_terminal_width()
-            wrapper = textwrap.TextWrapper(width, prefix, " " * len(prefix))
+            wrapper: textwrap.TextWrapper = textwrap.TextWrapper(width, prefix, " " * len(prefix))
             print(wrapper.fill(msg))
             num += 1
 
@@ -428,9 +432,9 @@ def init_config_file() -> bool:
     bookmarks_file: str = BOOKMARKS_FILE
             
     # determine option (r|w|x) for file access
-    MODE_READ = 'r'
-    MODE_WRITE = 'w'
-    MODE_CREATE = 'x'
+    MODE_READ: str = 'r'
+    MODE_WRITE: str = 'w'
+    MODE_CREATE: str = 'x'
 
     option: str = None
     if not os.path.exists(CONFIG_FILE):
@@ -514,7 +518,7 @@ def init_config_file() -> bool:
         for kv, msg in errors_in_file_read:
             prefix: str = f"  {num + 1}) '{kv}: "
             width: int = get_terminal_width()
-            wrapper = textwrap.TextWrapper(width, prefix, " " * len(prefix))
+            wrapper: textwrap.TextWrapper = textwrap.TextWrapper(width, prefix, " " * len(prefix))
             print(wrapper.fill(msg))
 
     return success
@@ -566,7 +570,7 @@ def ls_category(bookmarks: Dict[str, Dict[str, str]], category: str) -> None:
         for i, key in enumerate(keys):
             prefix: str = f"    {i + 1}) {key}: "
             width: int = get_terminal_width() 
-            wrapper = textwrap.TextWrapper(width, prefix, " " * len(prefix))
+            wrapper: textwrap.TextWrapper = textwrap.TextWrapper(width, prefix, " " * len(prefix))
             value: str = bookmarks[category][key]
             # if len(value) > 80:
             #     fmt: str = value
@@ -575,7 +579,7 @@ def ls_category(bookmarks: Dict[str, Dict[str, str]], category: str) -> None:
 
 def load_bookmarks() -> Dict[str, Dict[str, str]]: 
     bookmarks_file: str = get_config_value("bookmarks_file")
-    bookmarks_file = os.path.expanduser(bookmarks_file)
+    bookmarks_file: str = os.path.expanduser(bookmarks_file)
     bookmarks: dict[str, Dict[str, str]] = {}
 
     try:
@@ -648,12 +652,13 @@ def save_to_category(bookmarks: Dict[str, Dict[str, str]], category: str, key: s
     to`os.getcwd()`(current working directory)
 
     Args:
+        bookmarks: Dict[str, Dict[str, str]]: a dependency of most functions.
         category (str): key* of`Dict[str*, Dict[str, str]]`
         key (str): key* of `Dict[str,Dict[str*, str]]`
         path (str, optional): value* of`Dict[str, Dict[str, str*]]`Defaults to`os.getcwd().`
     """
-    path = os.path.expanduser(os.path.abspath(path))
-    success = False
+    path: str = os.path.expanduser(os.path.abspath(path))
+    success: bool = False
 
     if not (category_is_valid(category) and key_is_valid(key)):
         # early return
@@ -676,13 +681,14 @@ def save_to_category(bookmarks: Dict[str, Dict[str, str]], category: str, key: s
 
     if category in bookmarks: 
         if value_found_in_dict(bookmarks[category], path):
-            print(f"This path is already saved in {category}:")
+            print(f"This path is already saved in: {category} ({path})")
             return success
 
 
     if name_is_key(bookmarks, category) or key in bookmarks or category == key:
         print(f"'{category}' is a key in another category.")
         print("Please choose a different category name")
+        print("`pbj -h standards` to see naming rules")
         print("`pbj -a` to list all categories and bookmarks")
         return success
 
@@ -717,7 +723,7 @@ def save_to_bookmarks_file(bookmarks: Dict[str, Dict[str, str]]) -> bool:
         bookmarks (dict[str, str]): 
     """
     # prepare bookmarks with sorting and pruning:
-    # sort bookmarks:
+    # sort bookmarks (Ensures bookmarks file is sorted):
     bookmarks = sort_bookmarks(bookmarks)
     # prune. remove duplicate values from all categories. Save dups for reporting:
     dups: Dict[str, Dict[str, str]] = remove_duplicate_values(bookmarks)
@@ -1086,9 +1092,11 @@ if __name__ == "__main__":
             print(os.path.abspath(dir))
     else:
         import pbj_help
+        arg: str = ""
+        if num_args > 1:
+            for i in sys.argv[1:]:
+                arg += i + " "
+            arg = arg.strip()
+        print(f"'{arg}' not recognized.\nsee pbj -h options\n")
         pbj_help.help_synopsis()
-    # os.system("/bin/bash") 
-    # this will create a new subshell in the client terminal
-    # for example, to exit the terminal you'll have to ctr-d 
-    # multiple times. Instead, use bash wrapper.
                 
