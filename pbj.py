@@ -467,9 +467,9 @@ def init_config_file() -> bool:
         print(f"option: {option}")
         print(f"Exception handling {CONFIG_FILE} ({type(e).__name__}): \n{e}")
 
-    # if json file has fewer keys than default_config,
-    # save the missed key-vals to the file:
-    if len(default_config) > len(file_read):
+    # if file_read and default_config do not have identical keys or if
+    # default_config is smaller, save the missing key-vals to the file:
+    if len(default_config) > len(file_read) or list(default_config) != list(file_read):
         # only add if key in default_config is missing from file_read
         file_read.update({k: v for k, v in default_config.items() if k not in file_read})
         try:
@@ -722,12 +722,11 @@ def save_to_bookmarks_file(bookmarks: Dict[str, Dict[str, str]]) -> bool:
     Args:
         bookmarks (dict[str, str]): 
     """
-    # prepare bookmarks with sorting and pruning:
-    # sort bookmarks (Ensures bookmarks file is sorted):
-    bookmarks = sort_bookmarks(bookmarks)
-    # prune. remove duplicate values from all categories. Save dups for reporting:
+    # Path.home() for all paths in bookmarks must not be expanded.
+    bookmarks = unexpand_bookmarks(bookmarks)
+    # Remove duplicate paths that may exist in each category. Save dups for reporting:
     dups: Dict[str, Dict[str, str]] = remove_duplicate_values(bookmarks)
-    # print a report of which duplicates in their categories were deleted:
+    # print a report of the duplicates, and the categories from which they were deleted:
     if len(dups) > 0:
         print("deleted duplicate key-values:")
         for category in dups:
@@ -735,18 +734,20 @@ def save_to_bookmarks_file(bookmarks: Dict[str, Dict[str, str]]) -> bool:
             for key, path in dups[category].items():
                 print(f"  {key}: {path}")
 
-    option: str = 'w' if os.path.exists(BOOKMARKS_FILE) else 'x'
+    bookmarks_file: str = get_config_value("bookmarks_file")
+    option: str = 'w' if os.path.exists(bookmarks_file) else 'x'
     try:
         # in case parent directories do not exist:
-        dirs = os.path.dirname(BOOKMARKS_FILE)
+        dirs = os.path.dirname(bookmarks_file)
         os.makedirs(dirs, exist_ok=True)
 
         # read/write/create file to persist data:
-        with open(BOOKMARKS_FILE, option) as f:
-            json.dump(bookmarks, f, indent=4)
+        with open(bookmarks_file, option) as f:
+            json.dump(bookmarks, f, indent=4, sort_keys=True)
     except Exception as e:
         # Prints error message, and {type(e)..} name/type of exception and {e} error
-        print(f"Error saving to BOOKMARKS_FILE in save_to_bookmarks_file(). ({type(e).__name__}): {e}")
+        print(f"Error saving to bookmarks_file ({bookmarks_file}) in save_to_bookmarks_file(). ({type(e).__name__}): {e}")
+        print(f"bookmarks_file config value: {bookmarks_file}")
         return False
     return True
     
@@ -840,6 +841,23 @@ def sort_bookmarks(bookmarks: Dict[str, Dict[str, str]]) -> OrderedDict[str, Ord
         sorted_dict[ordered_key] = ordered_inner_dict
     return sorted_dict
         
+def unexpand_bookmarks(bookmarks: Dict[str, Dict[str, str]]) -> Dict[str, Dict[str, str]]:
+    dictionary = { outer_k: 
+        { inner_k: unexpand_path(inner_v) 
+            for inner_k, inner_v in outer_v.items() 
+        } 
+        for outer_k, outer_v in bookmarks.items()
+    }
+    return dictionary
+
+
+def unexpand_path(path: str) -> str:
+    from pathlib import Path
+    home: str = str(Path.home())
+    if path.startswith(home):
+        return str(Path('~') / Path(path).relative_to(home))
+    else:
+        return path
     
 def value_found_in_bookmarks(bookmarks: Dict[str, Dict[str, str]], value: str) -> bool:
     return any(value in inner_dict.values() for inner_dict in bookmarks.values())
@@ -994,7 +1012,10 @@ if __name__ == "__main__":
 
     #####TEST BRANCH#####
     elif num_args > 1 and is_test:
-        set_current_category(bookmarks, "default", "pbj")
+        # bookmarks = unexpand_items(bookmarks)
+        # save_to_bookmarks_file(bookmarks)
+        print()
+        print(bookmarks)
 
     # change default category
     elif num_args > 1 and opt_cd:
