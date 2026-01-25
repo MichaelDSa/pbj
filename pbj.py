@@ -81,20 +81,23 @@ def change_directory(bookmarks: Dict[str, Dict[str, str]], category: str, keynum
         elif keynum in bookmarks[category]:
             target_path = bookmarks[category][keynum]
         else:
-            target_path = os.getcwd()
+            # target_path = os.getcwd()
+            target_path = ""
     else:
-        target_path = os.getcwd()
+        # target_path = os.getcwd()
+        target_path = ""
         
-    target_path = os.path.expanduser(target_path)
-        
-    try:
-        os.chdir(target_path)
-    except OSError as e:
-        print(f"OSError: in `change_directory()`:")
-        print(f"{type(e).__name__}")
-        print(f"{e}")
-    return os.getcwd()
-
+    if target_path:
+        target_path = os.path.expanduser(target_path)
+            
+        try:
+            os.chdir(target_path)
+        except OSError as e:
+            print(f"OSError: in `change_directory()`:")
+            print(f"{type(e).__name__}")
+            print(f"{e}")
+        return os.getcwd()
+    return target_path
 
 def change_keyname_dialogue(bookmarks: Dict[str, Dict[str, str]], category: str) -> None:
     print("/////////////////////////////////////")
@@ -1089,7 +1092,8 @@ if __name__ == "__main__":
 
         if cat and keynum:
             dir_to_display: str = change_directory(bookmarks, cat, keynum)
-            print(dir_to_display)
+            if dir_to_display:
+                print(dir_to_display)
 
 
 
