@@ -916,6 +916,7 @@ if __name__ == "__main__":
     opt_cu: bool = False
     opt_r: bool = False
     opt_rc: bool = False
+    opt_p: bool = False
     is_test: bool = False
     long_opt_set_term_width: bool = False
     if len(sys.argv) >= 2:
@@ -929,6 +930,7 @@ if __name__ == "__main__":
         opt_cu = arg == "-cu" # change current category
         opt_r = arg == "-r"   # remove key
         opt_rc = arg == "-rc" # remove category
+        opt_p = arg == "-p"   # print path
         is_test = arg == "-test"  # tests for noob devs
         
     # help options
@@ -1070,7 +1072,28 @@ if __name__ == "__main__":
             print("deletion aborted/unsuccessful")
             print("note: current category cannot be deleted.")
 
-######-cu#########################################
+    # print path to stdout:
+    elif num_args > 1 and opt_p:
+        cat: str = None
+        keynum: str = None
+        # ./pbj -p [key | number]
+        if num_args == 3:
+            cat = current_category
+            keynum = sys.argv[2]
+        # ./pbj -p [category] [key | number]
+        elif num_args == 4:
+            cat = sys.argv[2]
+            if cat not in bookmarks:
+                cat = None
+            keynum = sys.argv[3]
+
+        if cat and keynum:
+            dir_to_display: str = change_directory(bookmarks, cat, keynum)
+            print(dir_to_display)
+
+
+
+    # change current category. ex: ./pbj -cu [category]
     elif num_args > 1 and opt_cu:
         if num_args == 2:
             # change_current_category_dialogue()
@@ -1086,8 +1109,6 @@ if __name__ == "__main__":
             new_category: str = sys.argv[2]
             keynum: str = sys.argv[3]
             set_current_category(bookmarks, new_category, keynum)
-
-########-cu#######################################
 
     elif no_dash:
         # if no args:
