@@ -722,12 +722,11 @@ def save_to_bookmarks_file(bookmarks: Dict[str, Dict[str, str]]) -> bool:
     Args:
         bookmarks (dict[str, str]): 
     """
-    # prepare bookmarks with sorting and pruning:
-    # sort bookmarks (Ensures bookmarks file is sorted):
-    bookmarks = sort_bookmarks(bookmarks)
-    # prune. remove duplicate values from all categories. Save dups for reporting:
+    # Path.home() for all paths in bookmarks must not be expanded.
+    bookmarks = unexpand_bookmarks(bookmarks)
+    # Remove duplicate paths that may exist in each category. Save dups for reporting:
     dups: Dict[str, Dict[str, str]] = remove_duplicate_values(bookmarks)
-    # print a report of which duplicates in their categories were deleted:
+    # print a report of the duplicates, and the categories from which they were deleted:
     if len(dups) > 0:
         print("deleted duplicate key-values:")
         for category in dups:
@@ -842,6 +841,23 @@ def sort_bookmarks(bookmarks: Dict[str, Dict[str, str]]) -> OrderedDict[str, Ord
         sorted_dict[ordered_key] = ordered_inner_dict
     return sorted_dict
         
+def unexpand_bookmarks(bookmarks: Dict[str, Dict[str, str]]) -> Dict[str, Dict[str, str]]:
+    dictionary = { outer_k: 
+        { inner_k: unexpand_path(inner_v) 
+            for inner_k, inner_v in outer_v.items() 
+        } 
+        for outer_k, outer_v in bookmarks.items()
+    }
+    return dictionary
+
+
+def unexpand_path(path: str) -> str:
+    from pathlib import Path
+    home: str = str(Path.home())
+    if path.startswith(home):
+        return str(Path('~') / Path(path).relative_to(home))
+    else:
+        return path
     
 def value_found_in_bookmarks(bookmarks: Dict[str, Dict[str, str]], value: str) -> bool:
     return any(value in inner_dict.values() for inner_dict in bookmarks.values())
@@ -996,7 +1012,10 @@ if __name__ == "__main__":
 
     #####TEST BRANCH#####
     elif num_args > 1 and is_test:
-        set_current_category(bookmarks, "default", "pbj")
+        # bookmarks = unexpand_items(bookmarks)
+        # save_to_bookmarks_file(bookmarks)
+        print()
+        print(bookmarks)
 
     # change default category
     elif num_args > 1 and opt_cd:
