@@ -920,6 +920,8 @@ if __name__ == "__main__":
     opt_r: bool = False
     opt_rc: bool = False
     opt_p: bool = False
+    opt_pq: bool = False
+    opt_pqq: bool = False
     is_test: bool = False
     long_opt_set_term_width: bool = False
     if len(sys.argv) >= 2:
@@ -934,6 +936,8 @@ if __name__ == "__main__":
         opt_r = arg == "-r"   # remove key
         opt_rc = arg == "-rc" # remove category
         opt_p = arg == "-p"   # print path
+        opt_pq = arg == "-pq" # print path in quotes
+        opt_pqq = arg == "-pqq" # print path in doublequotes
         is_test = arg == "-test"  # tests for noob devs
         
     # help options
@@ -1076,7 +1080,7 @@ if __name__ == "__main__":
             print("note: current category cannot be deleted.")
 
     # print path to stdout:
-    elif num_args > 1 and opt_p:
+    elif num_args > 1 and opt_p or opt_pq or opt_pqq:
         cat: str = None
         keynum: str = None
         # ./pbj -p [key | number]
@@ -1093,9 +1097,12 @@ if __name__ == "__main__":
         if cat and keynum:
             dir_to_display: str = change_directory(bookmarks, cat, keynum)
             if dir_to_display:
-                print(dir_to_display)
-
-
+                if opt_pq: # print dir in quotes
+                    print(f"\'{dir_to_display}\'")
+                elif opt_pqq: # print dir in doublequotes
+                    print(f"\"{dir_to_display}\"")
+                else: # print dir without quotes
+                    print(dir_to_display)
 
     # change current category. ex: ./pbj -cu [category]
     elif num_args > 1 and opt_cu:
