@@ -809,7 +809,7 @@ def set_current_category(bookmarks: Dict[str, Dict[str, str]], category: str = N
             key = keys[num -1]
         # if key is relevant:  
         if key in bookmarks[new_current_category]:
-            new_current_directory = bookmarks[category][key]
+            new_current_directory = os.path.expanduser(bookmarks[category][key])
         else:
             success = False
 
