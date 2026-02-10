@@ -18,10 +18,10 @@ export PBJ_CURRENT_CATEGORY
 		
 		if [[ -e $set_current_cat_tmp_file ]]; then
 			source $set_current_cat_tmp_file
-			rm $set_current_cat_tmp_file
+			command rm $set_current_cat_tmp_file
 			export $PBJ_CURRENT_CATEGORY
 			if [[ -n "$PBJ_NEWDIR" ]]; then
-				cd "$PBJ_NEWDIR" || return 0
+				command cd "$PBJ_NEWDIR" || return 0
 				PBJ_NEWDIR=""
 				#unset $PBJ_NEWDIR
 			fi
@@ -34,7 +34,7 @@ export PBJ_CURRENT_CATEGORY
 	pbj_output="$($pbjpy $@)"
 	if [ -d "$pbj_output" ]; then
 		# cd to pbj_output in this shell
-		cd "$pbj_output"
+		command cd "$pbj_output"
 		else
 		echo "$pbj_output" 
 	fi
